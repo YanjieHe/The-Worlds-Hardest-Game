@@ -210,18 +210,18 @@ void Game::LoadNormalSquares(QJsonObject& object)
     }
 }
 
-// State Game::CreateState()
-//{
-//    std::vector<double> positions;
-//    positions.push_back(player.x());
-//    positions.push_back(player.y());
-//    for (Ball* ball : balls)
-//    {
-//        positions.push_back(ball->x());
-//        positions.push_back(ball->y());
-//    }
-//    return State(positions, {0, 0, 0, 0});
-//}
+State Game::CreateState()
+{
+    std::vector<double> positions;
+    positions.push_back(player.x());
+    positions.push_back(player.y());
+    for (Ball* ball : balls)
+    {
+        positions.push_back(ball->x());
+        positions.push_back(ball->y());
+    }
+    return State(positions, {0, 0, 0, 0});
+}
 void Game::MoveBalls()
 {
     for (Ball* ball : balls)
