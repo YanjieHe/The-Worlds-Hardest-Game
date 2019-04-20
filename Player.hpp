@@ -15,7 +15,6 @@ class Player : public QObject, public QGraphicsRectItem
     QPointF start;
     QVector<QGraphicsLineItem*> lines;
 
-  private:
     QSet<int> pressingKeys;
     QTimer timer;
     bool CanMove(qreal x, qreal y);

@@ -16,18 +16,15 @@ QColor Game::light(221, 221, 255);
 
 Game::Game(QWidget*) : timer(this), playerTimer(this)
 {
-    scene.setSceneRect(0, 0, 800, 600);
-    setScene(&scene);
-
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setFixedSize(800, 600);
-    scene.addItem(&player);
-    scene.setBackgroundBrush(QColor(179, 179, 255));
+    SetBackground();
     LoadSettings("test.json");
     DrawBorder();
+
     connect(&timer, SIGNAL(timeout()), this, SLOT(MoveBalls()));
     timer.start(15);
+
+    connect(&playerTimer, SIGNAL(timeout()), this, SLOT(MakeDecision()));
+    playerTimer.start(15);
 }
 
 Game::~Game()
@@ -36,6 +33,18 @@ Game::~Game()
     {
         delete ball;
     }
+}
+
+void Game::SetBackground()
+{
+    scene.setSceneRect(0, 0, 800, 600);
+    setScene(&scene);
+
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setFixedSize(800, 600);
+    scene.addItem(&player);
+    scene.setBackgroundBrush(QColor(179, 179, 255));
 }
 
 void Game::DrawBorder()
@@ -222,10 +231,16 @@ State Game::CreateState()
     }
     return State(positions, {0, 0, 0, 0});
 }
+
 void Game::MoveBalls()
 {
     for (Ball* ball : balls)
     {
         ball->Move();
     }
+}
+
+void Game::MakeDecision()
+{
+    State state = CreateState();
 }

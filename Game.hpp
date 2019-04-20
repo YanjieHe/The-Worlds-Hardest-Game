@@ -11,13 +11,14 @@ class Game : public QGraphicsView
 {
     Q_OBJECT
   public:
-    Game(QWidget* parent = nullptr);
     QGraphicsScene scene;
     Player player;
     QVector<Ball*> balls;
     QVector<Square*> squares;
     QTimer timer;
     QTimer playerTimer;
+
+    Game(QWidget* parent = nullptr);
     ~Game();
     void DrawBorder();
     void LoadSettings(QString path);
@@ -26,12 +27,14 @@ class Game : public QGraphicsView
     void LoadGreenSquares(QJsonObject& object);
     void LoadNormalSquares(QJsonObject& object);
     State CreateState();
+
     static QColor green;
     static QColor gray;
     static QColor light;
     const int width = 35;
   public slots:
     void MoveBalls();
+    void MakeDecision();
 };
 
 #endif // GAME_HPP
