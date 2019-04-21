@@ -126,6 +126,16 @@ void Player::DetectMove()
 
 bool Player::TryMove(int direction)
 {
+    QList<QGraphicsItem*> colliding_items = collidingItems();
+    for (int i = 0, n = colliding_items.size(); i < n; ++i)
+    {
+        auto item = colliding_items[i];
+        if (typeid(*item) == typeid(Ball))
+        {
+            setPos(start);
+            death++;
+        }
+    }
     if (direction == 0)
     {
         if (pos().y() > 0 && CheckFourCorners(x(), y() - 2))

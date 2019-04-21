@@ -10,7 +10,7 @@ class State
     // The third and fourth integers are the coordinate of destination position
     std::vector<int> positions;
     std::array<double, 4> actions; // up, down, left, right
-
+    int choice;
     State();
     State(std::vector<int> positions, std::array<double, 4> actions);
 };
