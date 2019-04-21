@@ -7,6 +7,9 @@
 #include "State.hpp"
 #include <QGraphicsView>
 #include <QJsonObject>
+#include <QMap>
+#include <QPoint>
+#include <QSet>
 #include <QVector>
 class Game : public QGraphicsView
 {
