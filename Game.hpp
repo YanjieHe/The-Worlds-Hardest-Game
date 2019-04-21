@@ -15,11 +15,12 @@ class Game : public QGraphicsView
     Player player;
     QVector<Ball*> balls;
     QVector<Square*> squares;
-    QTimer timer;
+    QTimer ballsTimer;
     QTimer playerTimer;
 
     Game(QWidget* parent = nullptr);
     ~Game();
+    void SetBackground();
     void DrawBorder();
     void LoadSettings(QString path);
     void MakeSquare(QColor color, int x, int y);
@@ -34,6 +35,7 @@ class Game : public QGraphicsView
     const int width = 35;
   public slots:
     void MoveBalls();
+    void MovePlayer();
     void MakeDecision();
 };
 

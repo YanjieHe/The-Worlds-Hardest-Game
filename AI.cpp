@@ -1,5 +1,10 @@
 #include "AI.hpp"
 
-AI::AI(State& state) : state{state}
+AI::AI()
 {
+}
+
+void AI::AddState(State state)
+{
+    states.push_back(state);
 }

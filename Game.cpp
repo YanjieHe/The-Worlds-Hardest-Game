@@ -14,16 +14,14 @@ QColor Game::green(164, 254, 163);
 QColor Game::gray(247, 247, 255);
 QColor Game::light(221, 221, 255);
 
-Game::Game(QWidget*) : timer(this), playerTimer(this)
+Game::Game(QWidget*) : ballsTimer(this), playerTimer(this)
 {
     SetBackground();
-    LoadSettings("test.json");
-    DrawBorder();
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(MoveBalls()));
-    timer.start(15);
+    connect(&ballsTimer, SIGNAL(timeout()), this, SLOT(MoveBalls()));
+    ballsTimer.start(15);
 
-    connect(&playerTimer, SIGNAL(timeout()), this, SLOT(MakeDecision()));
+    connect(&playerTimer, SIGNAL(timeout()), this, SLOT(MovePlayer()));
     playerTimer.start(15);
 }
 
@@ -33,6 +31,12 @@ Game::~Game()
     {
         delete ball;
     }
+    balls.clear();
+    for (Square* square : squares)
+    {
+        delete square;
+    }
+    squares.clear();
 }
 
 void Game::SetBackground()
@@ -45,6 +49,8 @@ void Game::SetBackground()
     setFixedSize(800, 600);
     scene.addItem(&player);
     scene.setBackgroundBrush(QColor(179, 179, 255));
+    LoadSettings("test.json");
+    DrawBorder();
 }
 
 void Game::DrawBorder()
@@ -108,7 +114,7 @@ void Game::LoadSettings(QString path)
     {
         QTextStream stream(&file);
         QString json = stream.readAll();
-        qDebug() << "json" << json;
+        qDebug() << json;
         QJsonParseError error;
         QJsonDocument document = QJsonDocument::fromJson(json.toUtf8(), &error);
         if (!document.isNull() && (error.error == QJsonParseError::NoError))
@@ -238,6 +244,11 @@ void Game::MoveBalls()
     {
         ball->Move();
     }
+}
+
+void Game::MovePlayer()
+{
+    player.DetectMove();
 }
 
 void Game::MakeDecision()

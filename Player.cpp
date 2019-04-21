@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QGraphicsView>
 #include <QKeyEvent>
-Player::Player() : QGraphicsRectItem(nullptr), start{QPointF(0, 0)}, timer(this)
+Player::Player() : QGraphicsRectItem(nullptr), start{QPointF(0, 0)}, death{0}
 {
     setRect(0, 0, 24, 24);
     setPos(start);
@@ -12,8 +12,6 @@ Player::Player() : QGraphicsRectItem(nullptr), start{QPointF(0, 0)}, timer(this)
     setPen(QPen(Qt::black, 5));
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
-    connect(&timer, SIGNAL(timeout()), this, SLOT(Move()));
-    timer.start(15);
 }
 
 void Player::keyPressEvent(QKeyEvent* event)
@@ -84,7 +82,7 @@ bool Player::CheckFourCorners(qreal x, qreal y)
     }
 }
 
-void Player::Move()
+void Player::DetectMove()
 {
     QList<QGraphicsItem*> colliding_items = collidingItems();
     for (int i = 0, n = colliding_items.size(); i < n; ++i)
@@ -93,6 +91,7 @@ void Player::Move()
         if (typeid(*item) == typeid(Ball))
         {
             setPos(start);
+            death++;
         }
     }
     if (pressingKeys.find(Qt::Key_Left) != pressingKeys.end())
