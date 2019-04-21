@@ -20,6 +20,7 @@ class Player : public QObject, public QGraphicsRectItem
     bool CanMove(qreal x, qreal y);
     bool CheckFourCorners(qreal x, qreal y);
     void DetectMove();
+    bool TryMove(int direction);
 };
 
 #endif // PLAYER_HPP

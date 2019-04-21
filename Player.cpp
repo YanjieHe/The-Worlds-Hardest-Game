@@ -123,3 +123,40 @@ void Player::DetectMove()
         }
     }
 }
+
+bool Player::TryMove(int direction)
+{
+    if (direction == 0)
+    {
+        if (pos().y() > 0 && CheckFourCorners(x(), y() - 2))
+        {
+            setPos(x(), y() - 2);
+            return true;
+        }
+    }
+    else if (direction == 1)
+    {
+        if (pos().y() + rect().width() < 800 && CheckFourCorners(x(), y() + 2))
+        {
+            setPos(x(), y() + 2);
+            return true;
+        }
+    }
+    else if (direction == 2)
+    {
+        if (pos().x() > 0 && CheckFourCorners(x() - 2, y()))
+        {
+            setPos(x() - 2, y());
+            return true;
+        }
+    }
+    else if (direction == 3)
+    {
+        if (pos().x() + rect().width() < 800 && CheckFourCorners(x() + 2, y()))
+        {
+            setPos(x() + 2, y());
+            return true;
+        }
+    }
+    return false;
+}

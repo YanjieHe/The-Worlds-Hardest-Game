@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRandomGenerator>
 #include <QTextStream>
 #include <algorithm>
 #include <unordered_map>
@@ -14,7 +15,9 @@ QColor Game::green(164, 254, 163);
 QColor Game::gray(247, 247, 255);
 QColor Game::light(221, 221, 255);
 
-Game::Game(QWidget*) : ballsTimer(this), playerTimer(this)
+Game::Game(QWidget*)
+    : ballsTimer(this), playerTimer(this), ai(4 + 6 * 2),
+      previousState(std::vector<int>(4 + 6 * 2, -1), {})
 {
     SetBackground();
 
@@ -227,13 +230,15 @@ void Game::LoadNormalSquares(QJsonObject& object)
 
 State Game::CreateState()
 {
-    std::vector<double> positions;
-    positions.push_back(player.x());
-    positions.push_back(player.y());
+    std::vector<int> positions;
+    positions.push_back(static_cast<int>(player.x()));
+    positions.push_back(static_cast<int>(player.y()));
+    positions.push_back(20 * 35);
+    positions.push_back(10 * 35);
     for (Ball* ball : balls)
     {
-        positions.push_back(ball->x());
-        positions.push_back(ball->y());
+        positions.push_back(static_cast<int>(ball->x()));
+        positions.push_back(static_cast<int>(ball->y()));
     }
     return State(positions, {0, 0, 0, 0});
 }
@@ -248,7 +253,69 @@ void Game::MoveBalls()
 
 void Game::MovePlayer()
 {
-    player.DetectMove();
+    playerTimer.stop();
+    //    player.DetectMove();
+    State state					   = CreateState();
+    std::vector<double> directions = ai.MakeDecision(state);
+    if (ai.data.size() < 20)
+    {
+        qDebug() << "ai.data.size() = " << ai.data.size();
+        directions = {(double) QRandomGenerator::global()->generate(),
+                      (double) QRandomGenerator::global()->generate(),
+                      (double) QRandomGenerator::global()->generate(),
+                      (double) QRandomGenerator::global()->generate()};
+    }
+    ai.AddState(state);
+    int score = 0;
+    if (previousState.positions.front() != -1)
+    {
+        int previousDistance =
+            AI::ManhattanDistance(state.positions.at(0), state.positions.at(1),
+                                  state.positions.at(3), state.positions.at(4));
+        int currentDistance =
+            AI::ManhattanDistance(state.positions.at(0), state.positions.at(1),
+                                  state.positions.at(3), state.positions.at(4));
+        if (currentDistance < previousDistance)
+        {
+            score = score + 1;
+        }
+        else
+        {
+            score = score - 1;
+        }
+    }
+    if (previousDeath != -1)
+    {
+        if (player.death > previousDeath)
+        {
+            score = score - 10;
+            ai.StartNewRound();
+        }
+    }
+    if (ai.states.size() > 100)
+    {
+        ai.StartNewRound();
+    }
+    ai.Update(score);
+    previousState = state;
+    previousDeath = player.death;
+    vector<std::tuple<int, double>> choices(4);
+    for (int i = 0; i < directions.size(); i++)
+    {
+        choices[i] = std::make_tuple(i, directions[i]);
+    }
+    std::sort(choices.begin(), choices.end(),
+              [](std::tuple<int, double>& x, std::tuple<int, double>& y) {
+                  return std::get<1>(x) > std::get<1>(y);
+              });
+    for (auto& choice : choices)
+    {
+        if (player.TryMove(std::get<0>(choice)))
+        {
+            break;
+        }
+    }
+    playerTimer.start(15);
 }
 
 void Game::MakeDecision()

@@ -26,6 +26,7 @@ CONFIG += c++11
 
 SOURCES += \
         AI.cpp \
+        BPNeuralNetwork.cpp \
         Ball.cpp \
         Game.cpp \
         Player.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
 
 HEADERS += \
         AI.hpp \
+        BPNeuralNetwork.hpp \
         Ball.hpp \
         Game.hpp \
         Player.hpp \
@@ -45,6 +47,8 @@ HEADERS += \
 
 FORMS += \
         mainwindow.ui
+
+INCLUDEPATH += D:\\eigen-eigen-323c052e1731\\
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

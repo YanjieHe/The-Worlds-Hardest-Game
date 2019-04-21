@@ -1,5 +1,6 @@
 #ifndef GAME_HPP
 #define GAME_HPP
+#include "AI.hpp"
 #include "Ball.hpp"
 #include "Player.hpp"
 #include "Square.hpp"
@@ -17,6 +18,9 @@ class Game : public QGraphicsView
     QVector<Square*> squares;
     QTimer ballsTimer;
     QTimer playerTimer;
+    AI ai;
+    State previousState;
+    int previousDeath = -1;
 
     Game(QWidget* parent = nullptr);
     ~Game();
