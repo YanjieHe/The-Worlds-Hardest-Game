@@ -84,16 +84,7 @@ bool Player::CheckFourCorners(qreal x, qreal y)
 
 void Player::DetectMove()
 {
-    QList<QGraphicsItem*> colliding_items = collidingItems();
-    for (int i = 0, n = colliding_items.size(); i < n; ++i)
-    {
-        auto item = colliding_items[i];
-        if (typeid(*item) == typeid(Ball))
-        {
-            setPos(start);
-            death++;
-        }
-    }
+    //    CheckColliding();
     if (pressingKeys.find(Qt::Key_Left) != pressingKeys.end())
     {
         if (pos().x() > 0 && CheckFourCorners(x() - 2, y()))
@@ -126,16 +117,7 @@ void Player::DetectMove()
 
 bool Player::TryMove(int direction)
 {
-    QList<QGraphicsItem*> colliding_items = collidingItems();
-    for (int i = 0, n = colliding_items.size(); i < n; ++i)
-    {
-        auto item = colliding_items[i];
-        if (typeid(*item) == typeid(Ball))
-        {
-            setPos(start);
-            death++;
-        }
-    }
+    CheckColliding();
     if (direction == 0)
     {
         if (pos().y() > 0 && CheckFourCorners(x(), y() - 2))
@@ -165,6 +147,22 @@ bool Player::TryMove(int direction)
         if (pos().x() + rect().width() < 800 && CheckFourCorners(x() + 2, y()))
         {
             setPos(x() + 2, y());
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Player::CheckColliding()
+{
+    QList<QGraphicsItem*> colliding_items = collidingItems();
+    for (int i = 0, n = colliding_items.size(); i < n; ++i)
+    {
+        auto item = colliding_items[i];
+        if (typeid(*item) == typeid(Ball))
+        {
+            setPos(start);
+            death++;
             return true;
         }
     }

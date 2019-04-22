@@ -21,6 +21,7 @@ class Player : public QObject, public QGraphicsRectItem
     bool CheckFourCorners(qreal x, qreal y);
     void DetectMove();
     bool TryMove(int direction);
+    bool CheckColliding();
 };
 
 #endif // PLAYER_HPP

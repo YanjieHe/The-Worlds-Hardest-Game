@@ -258,80 +258,82 @@ void Game::MovePlayer()
 {
     playerTimer.stop();
     player.DetectMove();
-    State state  = CreateState();
-    double score = 0;
-    if (previousState.positions.front() != -1)
-    {
-        int previousDistance = AI::ManhattanDistance(
-            previousState.positions.at(0), previousState.positions.at(1),
-            previousState.positions.at(3), previousState.positions.at(4));
-        int currentDistance =
-            AI::ManhattanDistance(state.positions.at(0), state.positions.at(1),
-                                  state.positions.at(3), state.positions.at(4));
-        score = currentDistance;
-        //        if (currentDistance > previousDistance)
-        //        {
-        //            score = score - 0.008;
-        //        }
-        //        else
-        //        {
-        //            score = score + 0.05;
-        //        }
-    }
-    if (previousDeath != -1)
-    {
-        if (player.death > previousDeath)
-        {
-            score = score * 0.9;
-            score = 1 / (score * score);
-            ai.Update(score);
-            ai.StartNewRound();
-        }
-        else if (ai.states.size() > 100)
-        {
-            score = score * 0.9;
-            score = 1 / (score * score);
-            ai.Update(score);
-            ai.StartNewRound();
-        }
-        else
-        {
-            ai.Update(score);
-        }
-    }
-    else
-    {
-        //        ai.Update(score);
-    }
-    previousState = state;
-    previousDeath = player.death;
-    auto result   = ai.MakeDecision(state);
-    std::vector<Choice> choices(result.size());
-    if (false)
-    {
-        for (int i = 0; i < result.size(); i++)
-        {
-            choices[i] = Choice(i, rand());
-        }
-    }
-    else
-    {
-        for (int i = 0; i < result.size(); i++)
-        {
-            choices[i] = Choice(i, result[i]);
-        }
-    }
-    std::sort(choices.begin(), choices.end(),
-              [](Choice& x, Choice& y) { return x.score > y.score; });
-    for (Choice& choice : choices)
-    {
-        if (player.TryMove(choice.direction))
-        {
-            state.choice = choice.direction;
-            break;
-        }
-    }
-    ai.AddState(state);
+    //    State state  = CreateState();
+    //    double score = 0;
+    //    if (previousState.positions.front() != -1)
+    //    {
+    //        int previousDistance = AI::ManhattanDistance(
+    //            previousState.positions.at(0), previousState.positions.at(1),
+    //            previousState.positions.at(3), previousState.positions.at(4));
+    //        int currentDistance =
+    //            AI::ManhattanDistance(state.positions.at(0),
+    //            state.positions.at(1),
+    //                                  state.positions.at(3),
+    //                                  state.positions.at(4));
+    //        score = currentDistance;
+    //        //        if (currentDistance > previousDistance)
+    //        //        {
+    //        //            score = score - 0.008;
+    //        //        }
+    //        //        else
+    //        //        {
+    //        //            score = score + 0.05;
+    //        //        }
+    //    }
+    //    if (previousDeath != -1)
+    //    {
+    //        if (player.death > previousDeath)
+    //        {
+    //            score = score * 0.9;
+    //            score = 1 / (score * score);
+    //            ai.Update(score);
+    //            ai.StartNewRound();
+    //        }
+    //        else if (ai.states.size() > 100)
+    //        {
+    //            score = score * 0.9;
+    //            score = 1 / (score * score);
+    //            ai.Update(score);
+    //            ai.StartNewRound();
+    //        }
+    //        else
+    //        {
+    //            ai.Update(score);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        //        ai.Update(score);
+    //    }
+    //    previousState = state;
+    //    previousDeath = player.death;
+    //    auto result   = ai.MakeDecision(state);
+    //    std::vector<Choice> choices(result.size());
+    //    if (false)
+    //    {
+    //        for (int i = 0; i < result.size(); i++)
+    //        {
+    //            choices[i] = Choice(i, rand());
+    //        }
+    //    }
+    //    else
+    //    {
+    //        for (int i = 0; i < result.size(); i++)
+    //        {
+    //            choices[i] = Choice(i, result[i]);
+    //        }
+    //    }
+    //    std::sort(choices.begin(), choices.end(),
+    //              [](Choice& x, Choice& y) { return x.score > y.score; });
+    //    for (Choice& choice : choices)
+    //    {
+    //        if (player.TryMove(choice.direction))
+    //        {
+    //            state.choice = choice.direction;
+    //            break;
+    //        }
+    //    }
+    //    ai.AddState(state);
     playerTimer.start(15);
 }
 
