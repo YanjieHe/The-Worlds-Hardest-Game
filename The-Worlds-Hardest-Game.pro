@@ -28,6 +28,7 @@ SOURCES += \
         AI.cpp \
         BPNeuralNetwork.cpp \
         Ball.cpp \
+        Board.cpp \
         Game.cpp \
         Player.cpp \
         Square.cpp \
@@ -39,6 +40,7 @@ HEADERS += \
         AI.hpp \
         BPNeuralNetwork.hpp \
         Ball.hpp \
+        Board.hpp \
         Game.hpp \
         Player.hpp \
         Square.hpp \

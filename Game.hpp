@@ -2,6 +2,7 @@
 #define GAME_HPP
 #include "AI.hpp"
 #include "Ball.hpp"
+#include "Board.hpp"
 #include "Player.hpp"
 #include "Square.hpp"
 #include "State.hpp"
@@ -11,6 +12,7 @@
 #include <QPoint>
 #include <QSet>
 #include <QVector>
+
 class Game : public QGraphicsView
 {
     Q_OBJECT
@@ -24,6 +26,7 @@ class Game : public QGraphicsView
     AI ai;
     State previousState;
     int previousDeath = -1;
+    Board board;
 
     Game(QWidget* parent = nullptr);
     ~Game();
@@ -35,12 +38,14 @@ class Game : public QGraphicsView
     void LoadGreenSquares(QJsonObject& object);
     void LoadNormalSquares(QJsonObject& object);
     State CreateState();
+    void Initialize();
 
     static QColor green;
     static QColor gray;
     static QColor light;
     const int width = 35;
   public slots:
+    void Update();
     void MoveBalls();
     void MovePlayer();
     void MakeDecision();

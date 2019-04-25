@@ -3,7 +3,9 @@
 #include "BPNeuralNetwork.hpp"
 #include "State.hpp"
 #include <Eigen/Cholesky>
+#include <random>
 #include <vector>
+
 class Choice
 {
   public:
@@ -20,19 +22,24 @@ class Choice
 class AI
 {
   public:
-    std::vector<State> states;
-    std::vector<std::vector<State>> data;
-    BPNeuralNetwork network;
-    double discount = 0.9;
     int numOfInput;
-    AI(int numOfInput);
-    void AddState(State state);
-    double ComputeScore(State& lastState, State& currentState);
+    std::vector<std::vector<double>> DNAList;
+    std::vector<double> scoreList;
+    int networkIndex = 0;
+    std::mt19937 generator;
+    std::uniform_real_distribution<double> distribution;
+    BPNeuralNetwork network;
+
+    AI(int numOfInput, int sizeOfPopulation);
+    void UpdateScore(double score);
+    void Select();
+    void Crossover(int a, int b);
+    void Mutate(int index);
+    void NextNetwork();
     static int ManhattanDistance(int x0, int y0, int x1, int y1);
-    void Update(double score);
-    void StartNewRound();
     std::vector<double> MakeDecision(State& state);
-    static void Standardize(std::array<double, 4>& numbers);
+    static std::vector<double> GetDNA(BPNeuralNetwork& network);
+    static void SetDNA(BPNeuralNetwork& network, std::vector<double>& DNA);
 };
 
 #endif // AI_HPP

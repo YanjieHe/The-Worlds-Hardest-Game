@@ -17,16 +17,17 @@ QColor Game::gray(247, 247, 255);
 QColor Game::light(221, 221, 255);
 
 Game::Game(QWidget*)
-    : ballsTimer(this), playerTimer(this), ai(4 + 6 * 2),
+    : ballsTimer(this), playerTimer(this), ai(4 + 6 * 2, 100),
       previousState(std::vector<int>(4 + 6 * 2, -1), {})
 {
     SetBackground();
     srand((unsigned) time(NULL));
-    connect(&ballsTimer, SIGNAL(timeout()), this, SLOT(MoveBalls()));
+    Initialize();
+    connect(&ballsTimer, SIGNAL(timeout()), this, SLOT(Update()));
     ballsTimer.start(15);
 
-    connect(&playerTimer, SIGNAL(timeout()), this, SLOT(MovePlayer()));
-    playerTimer.start(15);
+    //    connect(&playerTimer, SIGNAL(timeout()), this, SLOT(MovePlayer()));
+    //    playerTimer.start(15);
 }
 
 Game::~Game()
@@ -94,18 +95,24 @@ void Game::DrawBorder()
         if (!exists(x - width, y))
         {
             lines << scene.addLine(x, y, x, y + width, pen);
+            board.lines.push_back(Board::Line(x, y, x, y + width));
         }
         if (!exists(x + width, y))
         {
             lines << scene.addLine(x + width, y, x + width, y + width, pen);
+            board.lines.push_back(
+                Board::Line(x + width, y, x + width, y + width));
         }
         if (!exists(x, y - width))
         {
             lines << scene.addLine(x, y, x + width, y, pen);
+            board.lines.push_back(Board::Line(x, y, x + width, y));
         }
         if (!exists(x, y + width))
         {
             lines << scene.addLine(x, y + width, x + width, y + width, pen);
+            board.lines.push_back(
+                Board::Line(x, y + width, x + width, y + width));
         }
     }
     player.lines = lines;
@@ -241,11 +248,64 @@ State Game::CreateState()
         positions.push_back(static_cast<int>(ball->x()));
         positions.push_back(static_cast<int>(ball->y()));
     }
-    double score = 0;
-    score += AI::ManhattanDistance(positions.at(0), positions.at(1),
-                                   positions.at(3), positions.at(4));
     return State(positions, {0, 0, 0, 0});
 }
+
+void Game::Initialize()
+{
+    for (Ball* ball : balls)
+    {
+        auto point = ball->points.front();
+        board.balls.push_back(Board::Ball(Board::Point(point.x(), point.y()),
+                                          ball->rect().height(),
+                                          ball->rect().width()));
+        std::vector<Board::Point> points;
+        points.reserve(ball->points.size());
+        for (auto point : ball->points)
+        {
+            points.push_back(Board::Point(point.x(), point.y()));
+        }
+        for (int i = static_cast<int>(ball->points.size()) - 1; i >= 0; i--)
+        {
+            auto point = ball->points.at(i);
+            points.push_back(Board::Point(point.x(), point.y()));
+        }
+        board.tracks.push_back(Board::Track(points));
+    }
+    board.square =
+        Board::Square(Board::Point(player.pos().x(), player.pos().y()),
+                      player.rect().height(), player.rect().width());
+    board.target = Board::Point(20 * 35, 10 * 35);
+}
+
+void Game::Update()
+{
+    ballsTimer.stop();
+    cout << "update" << endl;
+    for (int i = 0; i < static_cast<int>(board.tracks.size()); i++)
+    {
+        board.balls[i].position = board.tracks[i].Next();
+    }
+    auto choices = board.Decide();
+    int choice   = std::get<1>(choices.front());
+    double score = std::get<0>(choices.front());
+    if (score <= -100)
+    {
+        return;
+    }
+    static int xMoves[] = {0, 0, -1, +1}; // up, down, left, right
+    static int yMoves[] = {-1, +1, 0, 0}; // up, down, left, right
+    const int step		= 5;
+    board.square.position.x += xMoves[choice] * step;
+    board.square.position.y += yMoves[choice] * step;
+    for (int i = 0; i < static_cast<int>(board.balls.size()); i++)
+    {
+        balls[i]->setPos(board.balls[i].position.x, board.balls[i].position.y);
+    }
+    player.setPos(board.square.position.x, board.square.position.y);
+    ballsTimer.start(15);
+}
+
 void Game::MoveBalls()
 {
     for (Ball* ball : balls)
@@ -257,83 +317,64 @@ void Game::MoveBalls()
 void Game::MovePlayer()
 {
     playerTimer.stop();
-    player.DetectMove();
-    //    State state  = CreateState();
-    //    double score = 0;
-    //    if (previousState.positions.front() != -1)
-    //    {
-    //        int previousDistance = AI::ManhattanDistance(
-    //            previousState.positions.at(0), previousState.positions.at(1),
-    //            previousState.positions.at(3), previousState.positions.at(4));
-    //        int currentDistance =
-    //            AI::ManhattanDistance(state.positions.at(0),
-    //            state.positions.at(1),
-    //                                  state.positions.at(3),
-    //                                  state.positions.at(4));
-    //        score = currentDistance;
-    //        //        if (currentDistance > previousDistance)
-    //        //        {
-    //        //            score = score - 0.008;
-    //        //        }
-    //        //        else
-    //        //        {
-    //        //            score = score + 0.05;
-    //        //        }
-    //    }
-    //    if (previousDeath != -1)
-    //    {
-    //        if (player.death > previousDeath)
-    //        {
-    //            score = score * 0.9;
-    //            score = 1 / (score * score);
-    //            ai.Update(score);
-    //            ai.StartNewRound();
-    //        }
-    //        else if (ai.states.size() > 100)
-    //        {
-    //            score = score * 0.9;
-    //            score = 1 / (score * score);
-    //            ai.Update(score);
-    //            ai.StartNewRound();
-    //        }
-    //        else
-    //        {
-    //            ai.Update(score);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        //        ai.Update(score);
-    //    }
-    //    previousState = state;
-    //    previousDeath = player.death;
-    //    auto result   = ai.MakeDecision(state);
-    //    std::vector<Choice> choices(result.size());
-    //    if (false)
-    //    {
-    //        for (int i = 0; i < result.size(); i++)
-    //        {
-    //            choices[i] = Choice(i, rand());
-    //        }
-    //    }
-    //    else
-    //    {
-    //        for (int i = 0; i < result.size(); i++)
-    //        {
-    //            choices[i] = Choice(i, result[i]);
-    //        }
-    //    }
-    //    std::sort(choices.begin(), choices.end(),
-    //              [](Choice& x, Choice& y) { return x.score > y.score; });
-    //    for (Choice& choice : choices)
-    //    {
-    //        if (player.TryMove(choice.direction))
-    //        {
-    //            state.choice = choice.direction;
-    //            break;
-    //        }
-    //    }
-    //    ai.AddState(state);
+    //    player.DetectMove();
+    State state = CreateState();
+    auto result = ai.MakeDecision(state);
+    std::vector<Choice> choices(result.size());
+    for (int i = 0; i < static_cast<int>(result.size()); i++)
+    {
+        choices[i] = Choice(i, result[i]);
+    }
+    std::sort(choices.begin(), choices.end(),
+              [](Choice& x, Choice& y) { return x.score > y.score; });
+    for (Choice& choice : choices)
+    {
+        if (player.TryMove(choice.direction))
+        {
+            state.choice = choice.direction;
+            break;
+        }
+    }
+    state		 = CreateState();
+    double score = 0;
+    double distance =
+        AI::ManhattanDistance(state.positions.at(0), state.positions.at(1),
+                              state.positions.at(3), state.positions.at(4));
+    score				  = score + 1.0 / (distance * distance);
+    static int generation = 1;
+    static int steps	  = 0;
+    if (steps > 200 || player.death > previousDeath)
+    {
+        previousDeath = player.death;
+        steps		  = 0;
+        qDebug() << "network index =" << ai.networkIndex
+                 << ", score =" << ai.scoreList.at(ai.networkIndex);
+        ai.NextNetwork();
+        if (ai.networkIndex == 0)
+        {
+            ai.Select();
+            for (int i = 0; i < static_cast<int>(ai.DNAList.size()) - 1;
+                 i	 = i + 2)
+            {
+                ai.Crossover(i, i + 1);
+            }
+            for (int i = 0; i < static_cast<int>(ai.DNAList.size()); i++)
+            {
+                if (rand() % 50 == 0)
+                {
+                    ai.Mutate(i);
+                }
+            }
+            AI::SetDNA(ai.network, ai.DNAList.at(ai.networkIndex));
+            generation++;
+            qDebug() << "generation " << generation;
+        }
+    }
+    else
+    {
+        steps++;
+        ai.UpdateScore(score);
+    }
     playerTimer.start(15);
 }
 
